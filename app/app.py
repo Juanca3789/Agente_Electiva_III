@@ -18,8 +18,8 @@ def ask():
         
     return jsonify(
         { 
-            "answer": "Puedes revisar…", 
-            "sources": ["plan_2026"], 
+            "answer": f"Recibí tu pregunta: {data['question']}", 
+            "sources": ["mock_source"], 
             "needs_approval": True
         }
     ), 200
