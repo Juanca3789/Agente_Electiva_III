@@ -1,6 +1,27 @@
-# OrientaU Agent
-Prototipo académico de un agente que consulta fuentes autorizadas
-y ayuda a preparar respuestas sobre trámites académicos.
-## Cómo ejecutar
-1. Validar los archivos JSON.
-2. Ejecutar las pruebas o el mock disponible.
+# Matching de aspirantes (Jev)
+
+```text
+backend/
+  app.py          ← solo Flask (rutas)
+  cv.py           ← PDF → texto
+  seleccionar.py  ← POST a Jev
+  db.py           ← SQLite
+  ofertas.py      ← armar texto de vacante
+  paths.py        ← data/ y secret
+  secret
+  data/agent.db
+```
+
+```bash
+# 1) Backend (debe estar arriba antes que Vite)
+cd backend
+uv sync
+python app.py
+
+# 2) Frontend (otra terminal)
+cd frontend
+npm install
+npm run dev
+```
+
+Requisito: `pdftotext` (`poppler-utils`).
