@@ -1,0 +1,61 @@
+# Ejemplo: sitio en :80, estáticos del front, API al Flask local.
+#
+# 1) Build front:  cd frontend && npm ci && npm run build
+# 2) Ajusta FRONTEND_ROOT y upstream (FLASK_PORT) según tu .env
+# 3) sudo cp deploy/nginx.conf.example /etc/nginx/conf.d/electiva.conf
+# 4) sudo nginx -t && sudo systemctl reload nginx
+#
+# Variables alineadas con .env.example:
+#   FRONTEND_ROOT=/opt/electiva/frontend/dist
+#   FLASK_HOST=127.0.0.1
+#   FLASK_PORT=5000
+#   MAX_UPLOAD_MB=10
+
+upstream electiva_backend {
+    server 127.0.0.1:5000;
+    keepalive 8;
+}
+
+server {
+    listen 80;
+    listen [::]:80;
+    server_name _;
+
+    root /opt/electiva/frontend/dist;
+    index index.html;
+
+    client_max_body_size 10m;
+
+    gzip on;
+    gzip_types text/css application/javascript application/json image/svg+xml;
+    gzip_min_length 256;
+
+    location /api/ {
+        proxy_pass http://electiva_backend;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header Connection "";
+        proxy_read_timeout 180s;
+        proxy_send_timeout 180s;
+    }
+
+    location = /health {
+        proxy_pass http://electiva_backend;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        access_log off;
+    }
+
+    location /assets/ {
+        expires 7d;
+        add_header Cache-Control "public, immutable";
+        try_files $uri =404;
+    }
+
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+}

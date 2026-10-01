@@ -10,9 +10,10 @@ from flask import Flask, jsonify, request
 from cv import texto_desde_pdf
 from db import store
 from seleccionar import construir_peticion, evaluar_cv
+from settings import FLASK_DEBUG, FLASK_HOST, FLASK_PORT, MAX_CONTENT_LENGTH
 
 app = Flask(__name__)
-app.config["MAX_CONTENT_LENGTH"] = 10 * 1024 * 1024
+app.config["MAX_CONTENT_LENGTH"] = MAX_CONTENT_LENGTH
 app.json.ensure_ascii = False
 
 
@@ -185,5 +186,5 @@ def post_evaluar():
 
 
 if __name__ == "__main__":
-    # Sin reloader: evita ventana ECONNREFUSED (Vite devuelve HTTP 500 al proxy).
-    app.run(host="127.0.0.1", port=5000, debug=True, use_reloader=False)
+    # Sin reloader en producción (systemd + nginx).
+    app.run(host=FLASK_HOST, port=FLASK_PORT, debug=FLASK_DEBUG, use_reloader=False)
